@@ -6,11 +6,22 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Xml;
 using String = System.String;
+
+struct GameMetadata
+{
+    public string Name;
+    public Image Image;
+    public bool Installed;
+    public GameMetadata()
+    {
+        Name = null;
+        Image = null;
+        Installed = false;
+    }
+}
 
 namespace PS4Saves
 {
@@ -24,11 +35,11 @@ namespace PS4Saves
         private ulong executableBase = 0x0;
         private ulong libSceLibcInternalBase = 0x0;
         private ulong GetSaveDirectoriesAddr = 0;
-        private ulong GetGameImageAddr = 0;
+        private ulong ReadFileAddr = 0;
         private bool isPatched = false;
         private int user = 0x0;
         private string selectedGame = null;
-        List<Image> GameImages = [];
+        Dictionary<string, GameMetadata> GamesMetadata = [];
         string mp = "";
         bool log = true;
 
@@ -317,21 +328,72 @@ namespace PS4Saves
             var buffer = mem + 0x201;
 
             ps4.WriteMemory(pid, path, $"/user/appmeta/{game}/icon0.png");
-            var ret = (int)ps4.Call(pid, stub, GetGameImageAddr, path, buffer);
+            var ret = (int)ps4.Call(pid, stub, ReadFileAddr, path, buffer);
             if (ret != -1 && ret != 0)
             {
-                var image = ps4.ReadMemory(pid, buffer, ret * mem_size);
+                var image = ps4.ReadMemory(pid, buffer, mem_size);
                 if (image == null || image.All(singleByte => singleByte == 0))
                 {
                     ps4.FreeMemory(pid, mem, mem_size);
                     return null;
                 }
-                MemoryStream mStream = new MemoryStream();
+                MemoryStream mStream = new();
                 mStream.Write(image, 0, image.Length);
+                ps4.FreeMemory(pid, mem, mem_size);
                 return Image.FromStream(mStream);
             }
             ps4.FreeMemory(pid, mem, mem_size);
             return null;
+        }
+        private string GetGameName(string game)
+        {
+            var mem_size = 0x100000; // Due to shellcode, it'll be 1MB (lower amounts are unreliable, otherwise 32KB should be plenty)
+            var mem = ps4.AllocateMemory(pid, mem_size);
+            var path = mem;
+            var buffer = mem + 0x101;
+
+            ps4.WriteMemory(pid, path, $"/user/appmeta/{game}/pronunciation.xml");
+            var ret = (int)ps4.Call(pid, stub, ReadFileAddr, path, buffer);
+            if (ret != -1 && ret != 0)
+            {
+                var xmlBytes = ps4.ReadMemory(pid, buffer, mem_size);
+                if (xmlBytes == null || xmlBytes.All(singleByte => singleByte == 0))
+                {
+                    ps4.FreeMemory(pid, mem, mem_size);
+                    return null;
+                }
+                var xmlDocument = new XmlDocument();
+                xmlDocument.Load(new MemoryStream(xmlBytes));
+                // Based on some games which have language id = 00 with Japanese names (ex: The Playroom)
+                // Language ID = 01 seems to be English consistently, but some Lua games don't have id = 01
+                var englishNode = xmlDocument.DocumentElement.SelectSingleNode("/gamePackage/language[@id=01]/speechRecognitionWords/text");
+                var anyNode = xmlDocument.DocumentElement.SelectSingleNode("/gamePackage/language/speechRecognitionWords/text");
+                if (englishNode == null)
+                {
+                    return anyNode.InnerText;
+                }
+                ps4.FreeMemory(pid, mem, mem_size);
+                return englishNode.InnerText;
+            }
+            ps4.FreeMemory(pid, mem, mem_size);
+            return null;
+        }
+        private GameMetadata GetGameMetadata(string game)
+        {
+            if (GamesMetadata.ContainsKey(game))
+            {
+                return GamesMetadata[game];
+            }
+            var metadata = new GameMetadata();
+            metadata.Image = GetGameImage(game);
+            metadata.Name = GetGameName(game);
+            // Either one is good enough to identify the game, hopefully, so no warning/error.
+            if (metadata.Image != null || metadata.Name != null)
+            {
+                metadata.Installed = true;
+            }
+            GamesMetadata.Add(game, metadata);
+            return metadata;
         }
         private void gamesButton_Click(object sender, EventArgs e)
         {
@@ -440,10 +502,10 @@ namespace PS4Saves
         {
             // Allocate memory for custom functions
             GetSaveDirectoriesAddr = ps4.AllocateMemory(pid, 0x8000);
-            GetGameImageAddr = ps4.AllocateMemory(pid, 0x8000);
+            ReadFileAddr = ps4.AllocateMemory(pid, 0x8000);
 
             ps4.WriteMemory(pid, GetSaveDirectoriesAddr, functions.GetSaveDirectories);
-            ps4.WriteMemory(pid, GetGameImageAddr, functions.GetGameImage);
+            ps4.WriteMemory(pid, ReadFileAddr, functions.ReadFile);
 
             List<Patch> patchesToApply = Patches.GetLibcPatches(Offsets.SelectedFirmwareShellcore);
             List<Patch> imagePatchesToApply = Patches.GetLibcPatches(Offsets.SelectedFirmwareShellcore, true);
@@ -461,7 +523,7 @@ namespace PS4Saves
             {
                 foreach (var patch in imagePatchesToApply)
                 {
-                    ulong targetAddress = GetGameImageAddr + patch.Offset;
+                    ulong targetAddress = ReadFileAddr + patch.Offset;
                     ps4.WriteMemory(pid, targetAddress, libSceLibcInternalBase + patch.FunctionOffset);
                 }
             }
@@ -769,6 +831,7 @@ namespace PS4Saves
                 titleTextBox.Text = ((SearchEntry)dirsComboBox.SelectedItem).title;
                 subtitleTextBox.Text = ((SearchEntry)dirsComboBox.SelectedItem).subtitle;
                 detailsTextBox.Text = ((SearchEntry)dirsComboBox.SelectedItem).detail;
+                detailsTextBox.ForeColor = SystemColors.ControlText;
                 dateTextBox.Text = ((SearchEntry)dirsComboBox.SelectedItem).time;
             }
             else
@@ -787,6 +850,7 @@ namespace PS4Saves
             titleTextBox.Text = "";
             subtitleTextBox.Text = "";
             detailsTextBox.Text = "";
+            detailsTextBox.ForeColor = SystemColors.ControlText;
             dateTextBox.Text = "";
         }
 
@@ -795,9 +859,15 @@ namespace PS4Saves
             if (gamesComboBox.SelectedItem != null)
             {
                 selectedGame = (string)gamesComboBox.SelectedItem;
-                var image = GetGameImage(selectedGame);
-                gameImageBox.Image = image;
                 clearSavedataInfo();
+                var metadata = GetGameMetadata(selectedGame);
+                if (!metadata.Installed)
+                {
+                    detailsTextBox.Text += "Details for " + (metadata.Name ?? selectedGame) + " were not found. Game might be uninstalled." + Environment.NewLine + "You can mount a save to get more information.";
+                    detailsTextBox.ForeColor = System.Drawing.Color.Red;
+                }
+                gameImageBox.Image = metadata.Image;
+                titleTextBox.Text = metadata.Name;
             }
             else
             {
@@ -939,9 +1009,9 @@ namespace PS4Saves
 
             // Free custom function shellcode
             ps4.FreeMemory(pid, GetSaveDirectoriesAddr, 0x8000);
-            ps4.FreeMemory(pid, GetGameImageAddr, 0x8000);
+            ps4.FreeMemory(pid, ReadFileAddr, 0x8000);
             GetSaveDirectoriesAddr = 0;
-            GetGameImageAddr = 0;
+            ReadFileAddr = 0;
 
             isPatched = false;
 

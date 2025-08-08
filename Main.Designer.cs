@@ -485,7 +485,7 @@ namespace PS4Saves
             gameImageBox.MinimumSize = new System.Drawing.Size(175, 175);
             gameImageBox.Name = "gameImageBox";
             gameImageBox.Size = new System.Drawing.Size(175, 183);
-            gameImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            gameImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             gameImageBox.TabIndex = 8;
             gameImageBox.TabStop = false;
             // 
