@@ -329,7 +329,8 @@ namespace PS4Saves
 
             ps4.WriteMemory(pid, path, $"/user/appmeta/{game}/icon0.png");
             var ret = (int)ps4.Call(pid, stub, ReadFileAddr, path, buffer);
-            if (ret != -1 && ret != 0)
+            // ReadFile returns 1 when file is found
+            if (ret == 1)
             {
                 var image = ps4.ReadMemory(pid, buffer, mem_size);
                 if (image == null || image.All(singleByte => singleByte == 0))
@@ -354,7 +355,7 @@ namespace PS4Saves
 
             ps4.WriteMemory(pid, path, $"/user/appmeta/{game}/pronunciation.xml");
             var ret = (int)ps4.Call(pid, stub, ReadFileAddr, path, buffer);
-            if (ret != -1 && ret != 0)
+            if (ret == 1)
             {
                 var xmlBytes = ps4.ReadMemory(pid, buffer, mem_size);
                 if (xmlBytes == null || xmlBytes.All(singleByte => singleByte == 0))
