@@ -514,7 +514,7 @@ namespace PS4Saves
             Margin = new System.Windows.Forms.Padding(4);
             MinimumSize = new System.Drawing.Size(950, 550);
             Name = "Main";
-            Text = "Playstation 5 Save Mounter 1.4.6 [ps5debug]";
+            Text = "Playstation 5 Save Mounter 1.4.7 [ps5debug]";
             Closing += Main_Closing;
             connectionGroupBox.ResumeLayout(false);
             connectionGroupBox.PerformLayout();
