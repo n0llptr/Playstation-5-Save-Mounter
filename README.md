@@ -4,7 +4,7 @@ It solves the issue of failing to mount specific game saves, as they were alread
 Read the original readme below.
 
 Supports PS5 FWs:
-- 3.20, 4.03, 5.02, 5.10, 5.50, 6.02, 7.00, 7.20, 7.40, 7.60
+- 3.20, 4.03, 5.02, 5.10, 5.50, 6.02, 7.00, 7.01, 7.20, 7.40, 7.60
 	- If you have another FW version which is the same major version, it'll try to use the available offsets. This might now work, there's also a warning in the program.
 	- The following firmware versions are recognized but currently require a ps5debug port before they are fully supported: 8.20, 8.20.02, 9.40, 9.60, 10.01.
 - Currently can only mounts PS4 game saves, no PS5 game support at the moment.
@@ -30,5 +30,6 @@ Use this elf loader: https://github.com/ps5-payload-dev/elfldr
 ** Warning: Don't replace files in `sce_sys` directory, it is unnecessary and will probably corrupt your save**
 
 ---
+
 
 [ChendoChap's PS4 Save Mounter README](https://github.com/ChendoChap/Playstation-4-Save-Mounter/blob/master/README.md)
