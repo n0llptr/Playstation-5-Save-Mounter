@@ -1,4 +1,4 @@
-using libdebug;
+﻿using libdebug;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -232,7 +232,7 @@ namespace PS4Saves
                 }
 
                 int version = ps4.GetExtFWVersion();
-                switch(version)
+                switch (version)
                 {
                     case 320:
                     case 403:
@@ -245,6 +245,9 @@ namespace PS4Saves
                         matchExactFWVersion(version);
                         break;
                     case 550:
+                        matchLooseFWVersion(version, "5.02", false, true); // same as 5.02, different shellcore patches
+                        break;
+                    case 510:
                         matchLooseFWVersion(version, "5.02", false, true); // same as 5.02, different shellcore patches
                         break;
                     case 700:
