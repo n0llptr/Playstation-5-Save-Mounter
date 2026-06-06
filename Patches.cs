@@ -384,6 +384,141 @@ public static class Patches
             new(0x123DD4, [0x90, 0x90]), // nevah jump
             new(0x124052, [0x90, 0xE9]) // always jump
         ],
+        ["11.00"] =
+        [
+            new(0x1CA9C9A, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D1E25E, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1C92C40, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1C7BD75, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE2BB50, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x124F30, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1DC5C0, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x128273, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x126C18, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x1277F1, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x1249A4, [0x90, 0x90]), // nevah jump
+            new(0x124BC3, [0x90, 0xE9]) // always jump
+        ],
+        ["11.20"] =
+        [
+            new(0x1CAA284, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D1E2DA, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1C93645, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1C7C2A2, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE2BF50, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x124F30, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1DC5C0, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x128273, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x126C18, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x1277F1, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x1249A4, [0x90, 0x90]), // nevah jump
+            new(0x124BC3, [0x90, 0xE9]) // always jump
+        ],
+        ["11.40"] =
+        [
+            new(0x1CAA2B7, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D1E9C1, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1C93749, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1C7C2D6, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE2DAF0, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x124F40, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1DC5D0, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x128283, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x126C28, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x127801, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x1249B4, [0x90, 0x90]), // nevah jump
+            new(0x124BD3, [0x90, 0xE9]), // always jump
+        ],
+        ["12.00"] =
+        [
+            new(0x1CCC81B, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D41DC6, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1CB59CF, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1C9E685, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE5D4B0, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x129490, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1EE960, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x12C81A, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x12B1B8, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x12BD91, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x128EF4, [0x90, 0x90]), // nevah jump
+            new(0x129129, [0x90, 0xE9]), // always jump
+        ],
+        ["12.02"] =
+        [
+            new(0x1CCC64A, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D41E58, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1CB5932, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1C9E3E1, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE5D4B0, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x129490, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1EE960, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x12C81A, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x12B1B8, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x12BD91, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x128EF4, [0x90, 0x90]), // nevah jump
+            new(0x129129, [0x90, 0xE9]), // always jump
+        ],
+        ["12.20"] =
+        [
+            new(0x1CCC19A, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D41A00, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1CB5093, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1C9DC68, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE5E350, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x129490, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1EE960, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x12C81A, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x12B1B8, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x12BD91, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x128EF4, [0x90, 0x90]), // nevah jump
+            new(0x129129, [0x90, 0xE9]), // always jump
+        ],
+        ["12.40"] =
+        [
+            new(0x1CCC592, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D41F3D, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1CB5A7F, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1C9E3B5, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE5E350, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x129490, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1EE960, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x12C81A, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x12B1B8, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x12BD91, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x128EF4, [0x90, 0x90]), // nevah jump
+            new(0x129129, [0x90, 0xE9]), // always jump
+        ],
+        ["12.60"] =
+        [
+            new(0x1CD53E8, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D4AEA6, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1CBE7AA, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1CA7348, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE650F0, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x129490, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1EE960, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x12C81A, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x12B1B8, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x12BD91, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x128EF4, [0x90, 0x90]), // nevah jump
+            new(0x129129, [0x90, 0xE9]), // always jump
+        ],
+        ["12.70"] =
+        [
+            new(0x1CD59EF, [0x00]), // 'sce_sdmemory' patch
+            new(0x1D4B3B0, [0x00]), // 'sce_sdmemory1' patch
+            new(0x1CBEC8F, [0x00]), // 'sce_sdmemory2' patch
+            new(0x1CA737A, [0x00]), // 'sce_sdmemory3' patch
+            new(0xE650F0, [0x48, 0x31, 0xC0, 0xC3]), // verify keystone patch
+            new(0x129490, [0x31, 0xC0, 0xC3]), // transfer mount permission patch eg mount foreign saves with write permission
+            new(0x1EE960, [0x31, 0xC0, 0xC3]), // patch psn check to load saves saves foreign to current account
+            new(0x12C81A, [0xE9, 0x0C, 0x00, 0x00]), // ^ (thanks to GRModSave_Username) different patch
+            new(0x12B1B8, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // something something patches...
+            new(0x12BD91, [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]), // don't even remember doing this
+            new(0x128EF4, [0x90, 0x90]), // nevah jump
+            new(0x129129, [0x90, 0xE9]), // always jump
+        ],
     };
 
     /// <summary>
