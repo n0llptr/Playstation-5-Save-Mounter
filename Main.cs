@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using String = System.String;
@@ -188,6 +189,7 @@ namespace PS4Saves
                 SetStatus(wasPatched ? "Disconnected and unpatched Shellcore" : "Disconnected");
                 connectButton.Text = "Connect";
                 label2.Text = "Detected firmware version:";
+                debuggerVersionLabel.Text = "";
 
                 patchButton.Enabled = false;
                 unpatchButton.Enabled = false;
@@ -230,6 +232,8 @@ namespace PS4Saves
                         sw.Write(ipTextBox.Text);
                     }
                 }
+
+                try { debuggerVersionLabel.Text = ps4.GetExtBranding(); } catch { }
 
                 int version = ps4.GetExtFWVersion();
                 fwVersion = ((double)version / 100).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
@@ -901,7 +905,7 @@ namespace PS4Saves
             }
         }
 
-        private void patchButton_Click(object sender, EventArgs e)
+        private async void patchButton_Click(object sender, EventArgs e)
         {
             if (isPatched)
             {
@@ -909,86 +913,108 @@ namespace PS4Saves
                 return;
             }
 
-            var pl = ps4.GetProcessList();
-            var shellcoreui = pl.FindProcess("SceShellUI");
-            if (shellcoreui == null)
-            {
-                SetStatus("Couldn't find SceShellUI");
-                return;
-            }
-            pid = shellcoreui.pid;
+            patchButton.Enabled = false;
+            unpatchButton.Enabled = false;
 
-            var pm = ps4.GetProcessMaps(pid);
-            var tmp = pm.FindEntry("libSceSaveData.sprx")?.start;
-            if (tmp == null)
-            {
-                MessageBox.Show("savedata lib not found", "Error");
-                return;
-            }
-            libSceSaveDataBase = (ulong)tmp;
-
-            tmp = pm.FindEntry("libSceUserService.sprx")?.start;
-            if (tmp == null)
-            {
-                MessageBox.Show("user service lib not found", "Error");
-                return;
-            }
-            libSceUserServiceBase = (ulong)tmp;
-
-            tmp = pm.FindEntry("executable")?.start;
-            if (tmp == null)
-            {
-                MessageBox.Show("executable not found", "Error");
-                return;
-            }
-            executableBase = (ulong)tmp;
-
-            tmp = pm.FindEntry("libSceLibcInternal.sprx")?.start;
-            if (tmp == null)
-            {
-                MessageBox.Show("libc not found", "Error");
-                return;
-            }
-            libSceLibcInternalBase = (ulong)tmp;
-
-            // Resolve library offsets (cached or via kernel walk)
             try
             {
-                int version = ps4.GetExtFWVersion();
-                libOffsets = OffsetResolver.GetOffsets(ps4, pid, version, fwVersion);
-                WriteLog("Library offsets resolved for FW " + fwVersion);
+                await Task.Run(() =>
+                {
+                    BeginInvoke(() => SetStatus("Finding process..."));
+
+                    var pl = ps4.GetProcessList();
+                    var shellcoreui = pl.FindProcess("SceShellUI");
+                    if (shellcoreui == null)
+                    {
+                        BeginInvoke(() => SetStatus("Couldn't find SceShellUI"));
+                        return;
+                    }
+                    pid = shellcoreui.pid;
+
+                    BeginInvoke(() => SetStatus("Reading process maps..."));
+
+                    var pm = ps4.GetProcessMaps(pid);
+                    var tmp = pm.FindEntry("libSceSaveData.sprx")?.start;
+                    if (tmp == null)
+                    {
+                        BeginInvoke(() => MessageBox.Show("savedata lib not found", "Error"));
+                        return;
+                    }
+                    libSceSaveDataBase = (ulong)tmp;
+
+                    tmp = pm.FindEntry("libSceUserService.sprx")?.start;
+                    if (tmp == null)
+                    {
+                        BeginInvoke(() => MessageBox.Show("user service lib not found", "Error"));
+                        return;
+                    }
+                    libSceUserServiceBase = (ulong)tmp;
+
+                    tmp = pm.FindEntry("executable")?.start;
+                    if (tmp == null)
+                    {
+                        BeginInvoke(() => MessageBox.Show("executable not found", "Error"));
+                        return;
+                    }
+                    executableBase = (ulong)tmp;
+
+                    tmp = pm.FindEntry("libSceLibcInternal.sprx")?.start;
+                    if (tmp == null)
+                    {
+                        BeginInvoke(() => MessageBox.Show("libc not found", "Error"));
+                        return;
+                    }
+                    libSceLibcInternalBase = (ulong)tmp;
+
+                    // Resolve library offsets (cached or via kernel walk)
+                    BeginInvoke(() => SetStatus("Resolving library offsets..."));
+                    try
+                    {
+                        int version = ps4.GetExtFWVersion();
+                        libOffsets = OffsetResolver.GetOffsets(ps4, pid, version, fwVersion);
+                        WriteLog("Library offsets resolved for FW " + fwVersion);
+                    }
+                    catch (Exception ex)
+                    {
+                        BeginInvoke(() => MessageBox.Show("Failed to resolve library offsets: " + ex.Message, "Error"));
+                        return;
+                    }
+
+                    // SHELLCORE PATCHES (SceShellCore)
+                    BeginInvoke(() => SetStatus("Patching Shellcore..."));
+                    if (ApplyShellcorePatches(pl))
+                        BeginInvoke(() => SetStatus("Patched Shellcore"));
+
+                    // Write libSceLibcInternal function addresses to custom function shellcode
+                    ApplyCustomFunctions();
+
+                    isPatched = true;
+
+                    BeginInvoke(() =>
+                    {
+                        setupButton.Enabled = true;
+                        userComboBox.Enabled = true;
+
+                        gamesButton.Enabled = true;
+                        gamesComboBox.Enabled = true;
+                        gameImageBox.Enabled = true;
+
+                        searchButton.Enabled = true;
+                        dirsComboBox.Enabled = true;
+
+                        mountButton.Enabled = true;
+                        unmountButton.Enabled = true;
+
+                        nameTextBox.Enabled = true;
+                        createButton.Enabled = true;
+                    });
+                });
             }
-            catch (Exception ex)
+            finally
             {
-                MessageBox.Show("Failed to resolve library offsets: " + ex.Message, "Error");
-                return;
+                patchButton.Enabled = true;
+                unpatchButton.Enabled = true;
             }
-
-            //SHELLCORE PATCHES (SceShellCore)
-            if (ApplyShellcorePatches(pl))
-                SetStatus("Patched Shellcore");
-
-            // Write libSceLibcInternal function addresses to custom function shellcode
-            ApplyCustomFunctions();
-
-            isPatched = true;
-
-            setupButton.Enabled = true;
-            userComboBox.Enabled = true;
-
-            gamesButton.Enabled = true;
-            gamesComboBox.Enabled = true;
-            gameImageBox.Enabled = true;
-
-            searchButton.Enabled = true;
-            dirsComboBox.Enabled = true;
-
-            mountButton.Enabled = true;
-            unmountButton.Enabled = true;
-
-            nameTextBox.Enabled = true;
-            createButton.Enabled = true;
-
         }
 
         private void unpatch()

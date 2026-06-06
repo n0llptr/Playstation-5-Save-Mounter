@@ -499,13 +499,26 @@ namespace PS4Saves
             statusLabel.Size = new System.Drawing.Size(42, 15);
             statusLabel.TabIndex = 13;
             statusLabel.Text = "Status:";
-            // 
+            //
+            // debuggerVersionLabel
+            //
+            debuggerVersionLabel = new System.Windows.Forms.Label();
+            debuggerVersionLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            debuggerVersionLabel.AutoSize = true;
+            debuggerVersionLabel.ForeColor = System.Drawing.SystemColors.GrayText;
+            debuggerVersionLabel.Location = new System.Drawing.Point(750, 489);
+            debuggerVersionLabel.Name = "debuggerVersionLabel";
+            debuggerVersionLabel.Size = new System.Drawing.Size(0, 15);
+            debuggerVersionLabel.TabIndex = 14;
+            debuggerVersionLabel.Text = "";
+            //
             // Main
-            // 
+            //
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.SystemColors.Control;
             ClientSize = new System.Drawing.Size(934, 511);
+            Controls.Add(debuggerVersionLabel);
             Controls.Add(statusLabel);
             Controls.Add(infoGroupBox);
             Controls.Add(mountGroupBox);
@@ -568,5 +581,6 @@ namespace PS4Saves
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox sizeSnapCheckbox;
         private System.Windows.Forms.PictureBox gameImageBox;
+        private System.Windows.Forms.Label debuggerVersionLabel;
     }
 }

@@ -58,6 +58,7 @@ namespace libdebug
         {
             CMD_VERSION = 0xBD000001,
             CMD_EXT_FW_VERSION = 0xBD000500,
+            CMD_EXT_BRANDING = 0xBD000501,
 
             CMD_PROC_LIST = 0xBDAA0001,
             CMD_PROC_READ = 0xBDAA0002,
@@ -476,6 +477,20 @@ namespace libdebug
             byte[] data = new byte[length];
             sock.Receive(data, length, SocketFlags.None);
 
+            return ConvertASCII(data, 0);
+        }
+
+        public string GetExtBranding()
+        {
+            CheckConnected();
+
+            SendCMDPacket(CMDS.CMD_EXT_BRANDING, 0);
+
+            byte[] ldata = new byte[4];
+            sock.Receive(ldata, 4, SocketFlags.None);
+            int length = BitConverter.ToInt32(ldata, 0);
+
+            byte[] data = ReceiveData(length);
             return ConvertASCII(data, 0);
         }
 
