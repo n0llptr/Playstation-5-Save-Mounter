@@ -67,6 +67,7 @@ namespace PS4Saves
             gameImageBox = new System.Windows.Forms.PictureBox();
             sizeToolTip = new System.Windows.Forms.ToolTip(components);
             statusLabel = new System.Windows.Forms.Label();
+            debuggerVersionLabel = new System.Windows.Forms.Label();
             connectionGroupBox.SuspendLayout();
             createGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)sizeTrackBar).BeginInit();
@@ -499,10 +500,9 @@ namespace PS4Saves
             statusLabel.Size = new System.Drawing.Size(42, 15);
             statusLabel.TabIndex = 13;
             statusLabel.Text = "Status:";
-            //
+            // 
             // debuggerVersionLabel
-            //
-            debuggerVersionLabel = new System.Windows.Forms.Label();
+            // 
             debuggerVersionLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
             debuggerVersionLabel.AutoSize = true;
             debuggerVersionLabel.ForeColor = System.Drawing.SystemColors.GrayText;
@@ -510,10 +510,9 @@ namespace PS4Saves
             debuggerVersionLabel.Name = "debuggerVersionLabel";
             debuggerVersionLabel.Size = new System.Drawing.Size(0, 15);
             debuggerVersionLabel.TabIndex = 14;
-            debuggerVersionLabel.Text = "";
-            //
+            // 
             // Main
-            //
+            // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.SystemColors.Control;
@@ -527,7 +526,7 @@ namespace PS4Saves
             Margin = new System.Windows.Forms.Padding(4);
             MinimumSize = new System.Drawing.Size(950, 550);
             Name = "Main";
-            Text = "Playstation 5 Save Mounter 1.4.7 [ps5debug]";
+            Text = "Playstation 5 Save Mounter 1.5.0 [ps5debug-NG]";
             Closing += Main_Closing;
             connectionGroupBox.ResumeLayout(false);
             connectionGroupBox.PerformLayout();
