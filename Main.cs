@@ -256,12 +256,19 @@ namespace PS4Saves
                 {
                     case 320:
                     case 403:
+                    case 500:
                     case 502:
                     case 602:
+                    case 650:
                     case 740:
                     case 820:
+                    case 900:
+                    case 920:
                     case 960:
                     case 1001:
+                    case 1020:
+                    case 1040:
+                    case 1060:
                         matchExactFWVersion(version);
                         break;
                     case 550:
@@ -270,17 +277,29 @@ namespace PS4Saves
                     case 510:
                         matchLooseFWVersion(version, "5.02", false, true);
                         break;
+                    case 600:
+                        matchLooseFWVersion(version, "6.02", false, true);
+                        break;
                     case 700:
                     case 701:
                     case 720:
                     case 760:
                         matchLooseFWVersion(version, "7.40", false, true);
                         break;
+                    case 761:
+                        matchLooseFWVersion(version, "7.60", false, true);
+                        break;
                     case 800:
                         matchLooseFWVersion(version, "8.20", false, true);
                         break;
+                    case 905:
+                        matchLooseFWVersion(version, "9.00", false, true);
+                        break;
                     case 940:
                         matchLooseFWVersion(version, "9.60", false);
+                        break;
+                    case 1000:
+                        matchLooseFWVersion(version, "10.01", false, true);
                         break;
                     case >= 300 and < 400:
                         matchLooseFWVersion(version, "3.20");
