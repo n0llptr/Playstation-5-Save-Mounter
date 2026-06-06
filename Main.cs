@@ -42,6 +42,9 @@ namespace PS4Saves
         Dictionary<string, GameMetadata> GamesMetadata = [];
         string mp = "";
         bool log = true;
+        private Dictionary<string, Dictionary<string, ulong>> libOffsets = null;
+        private string fwVersion = "";
+        private string shellcorePatchVersion = "";
 
         public Main()
         {
@@ -140,22 +143,19 @@ namespace PS4Saves
         private void matchExactFWVersion(int fwVersion)
         {
             String detectedFirmware = ((double)fwVersion / 100).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            Offsets.SelectedFirmwareLibraries = detectedFirmware;
-            Offsets.SelectedFirmwareShellcore = detectedFirmware;
+            shellcorePatchVersion = detectedFirmware;
             label2.Text += " " + detectedFirmware;
         }
         private void matchLooseFWVersion(int fwVersion, String relatedFwVersion, bool offsetsWarning = true, bool differentShellcorePatches = false)
         {
             String detectedFirmware = ((double)fwVersion / 100).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            Offsets.SelectedFirmwareLibraries = relatedFwVersion;
-
             if (differentShellcorePatches)
             {
-                Offsets.SelectedFirmwareShellcore = detectedFirmware;
+                shellcorePatchVersion = detectedFirmware;
             }
             else
             {
-                Offsets.SelectedFirmwareShellcore = relatedFwVersion;
+                shellcorePatchVersion = relatedFwVersion;
             }
 
             if (offsetsWarning)
@@ -232,6 +232,9 @@ namespace PS4Saves
                 }
 
                 int version = ps4.GetExtFWVersion();
+                fwVersion = ((double)version / 100).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+
+                // Determine shellcore patch version (some FWs share patches)
                 switch (version)
                 {
                     case 320:
@@ -255,6 +258,9 @@ namespace PS4Saves
                     case 720:
                     case 760:
                         matchLooseFWVersion(version, "7.40", false, true);  // same as 7.40, different shellcore patches
+                        break;
+                    case 800:
+                        matchLooseFWVersion(version, "8.20", false, true);  // same as 8.20, different shellcore patches
                         break;
                     case 940:
                         matchLooseFWVersion(version, "9.60", false);  // same as 9.60
@@ -284,7 +290,7 @@ namespace PS4Saves
                         matchLooseFWVersion(version, "10.01");
                         break;
                     default:
-                        MessageBox.Show("Error! Unsupported firmware version detected: " + ((double)version / 100).ToString("F2", System.Globalization.CultureInfo.InvariantCulture) + "\nExiting.");
+                        MessageBox.Show("Error! Unsupported firmware version detected: " + fwVersion + "\nExiting.");
                         System.Windows.Forms.Application.Exit();
                         break;
                 }
@@ -452,7 +458,7 @@ namespace PS4Saves
             }
             userComboBox.DataSource = users.ToArray();
 
-            var ret = ps4.Call(pid, stub, libSceSaveDataBase + Offsets.sceSaveDataInitialize3);
+            var ret = ps4.Call(pid, stub, libSceSaveDataBase + OffsetResolver.GetFunctionOffset(libOffsets, "libSceSaveData", "sceSaveDataInitialize3"));
             WriteLog($"sceSaveDataInitialize3 ret = 0x{ret:X}");
 
             SetStatus("Setup Done :)");
@@ -466,7 +472,7 @@ namespace PS4Saves
 
             ps4.ChangeProtection(shellcore.pid, ex.start, (uint)(ex.end - ex.start), PS4DBG.VM_PROTECTIONS.VM_PROT_ALL);
 
-            List<Patch> patchesToApply = Patches.GetShellcorePatches(Offsets.SelectedFirmwareShellcore);
+            List<Patch> patchesToApply = Patches.GetShellcorePatches(shellcorePatchVersion);
 
             if (patchesToApply.Count > 0) // Check if there are any patches to apply
             {
@@ -511,25 +517,16 @@ namespace PS4Saves
             ps4.WriteMemory(pid, GetSaveDirectoriesAddr, functions.GetSaveDirectories);
             ps4.WriteMemory(pid, ReadFileAddr, functions.ReadFile);
 
-            List<Patch> patchesToApply = Patches.GetLibcPatches(Offsets.SelectedFirmwareShellcore);
-            List<Patch> imagePatchesToApply = Patches.GetLibcPatches(Offsets.SelectedFirmwareShellcore, true);
-
-            if (patchesToApply.Count > 0) // Check if there are any patches to apply
+            foreach (var (slotOffset, module, function) in OffsetResolver.DirShellcodeSlots)
             {
-                // Loop through each patch and apply it
-                foreach (var patch in patchesToApply)
-                {
-                    ulong targetAddress = GetSaveDirectoriesAddr + patch.Offset;
-                    ps4.WriteMemory(pid, targetAddress, libSceLibcInternalBase + patch.FunctionOffset);
-                }
+                ulong funcOffset = OffsetResolver.GetFunctionOffset(libOffsets, module, function);
+                ps4.WriteMemory(pid, GetSaveDirectoriesAddr + (ulong)slotOffset, libSceLibcInternalBase + funcOffset);
             }
-            if (imagePatchesToApply.Count > 0)
+
+            foreach (var (slotOffset, module, function) in OffsetResolver.FileShellcodeSlots)
             {
-                foreach (var patch in imagePatchesToApply)
-                {
-                    ulong targetAddress = ReadFileAddr + patch.Offset;
-                    ps4.WriteMemory(pid, targetAddress, libSceLibcInternalBase + patch.FunctionOffset);
-                }
+                ulong funcOffset = OffsetResolver.GetFunctionOffset(libOffsets, module, function);
+                ps4.WriteMemory(pid, ReadFileAddr + (ulong)slotOffset, libSceLibcInternalBase + funcOffset);
             }
         }
         private void searchButton_Click(object sender, EventArgs e)
@@ -681,7 +678,7 @@ namespace PS4Saves
         {
             var bufferAddr = ps4.AllocateMemory(pid, sizeof(int));
 
-            ps4.Call(pid, stub, libSceUserServiceBase + Offsets.sceUserServiceGetInitialUser, bufferAddr);
+            ps4.Call(pid, stub, libSceUserServiceBase + OffsetResolver.GetFunctionOffset(libOffsets, "libSceUserService", "sceUserServiceGetInitialUser"), bufferAddr);
 
             var id = ps4.ReadMemory<int>(pid, bufferAddr);
 
@@ -693,7 +690,7 @@ namespace PS4Saves
         private int[] GetLoginList()
         {
             var bufferAddr = ps4.AllocateMemory(pid, sizeof(int) * 4);
-            ps4.Call(pid, stub, libSceUserServiceBase + Offsets.sceUserServiceGetLoginUserIdList, bufferAddr);
+            ps4.Call(pid, stub, libSceUserServiceBase + OffsetResolver.GetFunctionOffset(libOffsets, "libSceUserService", "sceUserServiceGetLoginUserIdList"), bufferAddr);
 
             var id = ps4.ReadMemory(pid, bufferAddr, sizeof(int) * 4);
             var size = id.Length / sizeof(int);
@@ -710,7 +707,7 @@ namespace PS4Saves
         private string GetUserName(int userid)
         {
             var bufferAddr = ps4.AllocateMemory(pid, 17);
-            ps4.Call(pid, stub, libSceUserServiceBase + Offsets.sceUserServiceGetUserName, userid, bufferAddr, 17);
+            ps4.Call(pid, stub, libSceUserServiceBase + OffsetResolver.GetFunctionOffset(libOffsets, "libSceUserService", "sceUserServiceGetUserName"), userid, bufferAddr, 17);
             var str = ps4.ReadMemory<string>(pid, bufferAddr);
             ps4.FreeMemory(pid, bufferAddr, 17);
             return str;
@@ -724,7 +721,7 @@ namespace PS4Saves
             ps4.WriteMemory(pid, searchCondAddr, searchCond);
             ps4.WriteMemory(pid, searchResultAddr, searchResult);
 
-            var ret = ps4.Call(pid, stub, libSceSaveDataBase + Offsets.sceSaveDataDirNameSearch, searchCondAddr, searchResultAddr);
+            var ret = ps4.Call(pid, stub, libSceSaveDataBase + OffsetResolver.GetFunctionOffset(libOffsets, "libSceSaveData", "sceSaveDataDirNameSearch"), searchCondAddr, searchResultAddr);
             WriteLog($"sceSaveDataDirNameSearch ret = 0x{ret:X}");
             if (ret == 0)
             {
@@ -761,7 +758,7 @@ namespace PS4Saves
 
             ps4.WriteMemory(pid, mountAddr, mount);
             ps4.WriteMemory(pid, mountResultAddr, mountResult);
-            var ret = ps4.Call(pid, stub, libSceSaveDataBase + Offsets.sceSaveDataMount, mountAddr, mountResultAddr);
+            var ret = ps4.Call(pid, stub, libSceSaveDataBase + OffsetResolver.GetFunctionOffset(libOffsets, "libSceSaveData", "sceSaveDataMount"), mountAddr, mountResultAddr);
             WriteLog($"sceSaveDataMount ret = 0x{ret:X}");
             WriteLog($"mountResultAddr ret = 0x{mountResultAddr:X}");
             if (ret == 0)
@@ -784,7 +781,7 @@ namespace PS4Saves
             var mountPointAddr = ps4.AllocateMemory(pid, Marshal.SizeOf(typeof(SceSaveDataMountPoint)));
 
             ps4.WriteMemory(pid, mountPointAddr, mountPoint);
-            var ret = ps4.Call(pid, stub, libSceSaveDataBase + Offsets.sceSaveDataUmount, mountPointAddr);
+            var ret = ps4.Call(pid, stub, libSceSaveDataBase + OffsetResolver.GetFunctionOffset(libOffsets, "libSceSaveData", "sceSaveDataUmount"), mountPointAddr);
             WriteLog($"sceSaveDataUmount ret = 0x{ret:X}");
             ps4.FreeMemory(pid, mountPointAddr, Marshal.SizeOf(typeof(SceSaveDataMountPoint)));
             mp = null;
@@ -797,7 +794,7 @@ namespace PS4Saves
 
             ps4.WriteMemory(pid, mountAddr, mount);
             ps4.WriteMemory(pid, mountResultAddr, mountResult);
-            var ret = ps4.Call(pid, stub, libSceSaveDataBase + Offsets.sceSaveDataTransferringMount, mountAddr, mountResultAddr);
+            var ret = ps4.Call(pid, stub, libSceSaveDataBase + OffsetResolver.GetFunctionOffset(libOffsets, "libSceSaveData", "sceSaveDataTransferringMount"), mountAddr, mountResultAddr);
             WriteLog($"sceSaveDataTransferringMount ret = 0x{ret:X}");
             if (ret == 0)
             {
@@ -954,6 +951,19 @@ namespace PS4Saves
             }
             libSceLibcInternalBase = (ulong)tmp;
 
+            // Resolve library offsets (cached or via kernel walk)
+            try
+            {
+                int version = ps4.GetExtFWVersion();
+                libOffsets = OffsetResolver.GetOffsets(ps4, pid, version, fwVersion);
+                WriteLog("Library offsets resolved for FW " + fwVersion);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to resolve library offsets: " + ex.Message, "Error");
+                return;
+            }
+
             //SHELLCORE PATCHES (SceShellCore)
             if (ApplyShellcorePatches(pl))
                 SetStatus("Patched Shellcore");
@@ -991,21 +1001,16 @@ namespace PS4Saves
             // Change memory mapping to RWX
             ps4.ChangeProtection(shellcore.pid, ex.start, (uint)(ex.end - ex.start), PS4DBG.VM_PROTECTIONS.VM_PROT_ALL);
 
-            List<Patch> patchesToApply = Patches.GetShellcorePatches(Offsets.SelectedFirmwareShellcore);
+            List<Patch> patchesToApply = Patches.GetShellcorePatches(shellcorePatchVersion);
 
-            if (patchesToApply.Count > 0) // Check if there are any patches to apply
+            foreach (var patch in patchesToApply)
             {
-                // Loop through each patch and apply it
-                foreach (var patch in patchesToApply)
+                ulong targetAddress = ex.start + patch.Offset;
+                if (patch.OriginalBytes != null)
                 {
-                    ulong targetAddress = ex.start + patch.Offset;
-                    // edge case for when originalBytes aren't set properly (usually while debugging or if the app crashes)
-                    if (patch.OriginalBytes != null)
-                    {
-                        ps4.WriteMemory(shellcore.pid, targetAddress, patch.OriginalBytes);
-                    }
-                    patch.OriginalBytes = [];
+                    ps4.WriteMemory(shellcore.pid, targetAddress, patch.OriginalBytes);
                 }
+                patch.OriginalBytes = [];
             }
 
             // Return memory mapping to execute-only
