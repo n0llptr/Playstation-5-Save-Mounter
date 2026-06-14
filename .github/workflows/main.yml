@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 jobs:
-  build_payload:
+  build_and_release:
     runs-on: 'ubuntu-latest'
 
     steps:
@@ -44,37 +44,18 @@ jobs:
     - name: Build mounter payload
       run: make -C mounter_payload
 
-    - name: Upload payload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: mounter-elf
-        path: mounter_payload/mounter.elf
-
-  build_and_release:
-    needs: build_payload
-    runs-on: 'windows-latest'
-
-    steps:
-    - uses: actions/checkout@v4
-
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
-    - name: Download mounter payload
-      uses: actions/download-artifact@v4
-      with:
-        name: mounter-elf
-        path: ./payload
-
     - name: Publish
-      shell: pwsh
       run: |
-        dotnet publish PS4Saves.csproj --configuration Release --output ./publish/win-x64
-        Copy-Item ./payload/mounter.elf ./publish/win-x64/
+        dotnet publish PS4Saves.csproj --configuration Release \
+          -p:EnableWindowsTargeting=true --output ./publish/win-x64
+        cp mounter_payload/mounter.elf ./publish/win-x64/
         cd ./publish/win-x64
-        Compress-Archive -Path ./* -DestinationPath save-mounter.zip
+        zip -r save-mounter.zip ./*
 
     - name: Attest
       uses: actions/attest-build-provenance@v1
