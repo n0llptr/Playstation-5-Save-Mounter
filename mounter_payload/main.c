@@ -17,7 +17,6 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <netinet/in.h>
-#include <dlfcn.h>
 #include <ps5/kernel.h>
 
 #define MOUNTER_PORT 9090
@@ -41,6 +40,8 @@ typedef struct { uint8_t dummy; } UmountOpt;
 int sceFsInitCreatePfsSaveDataOpt(CreateOpt *opt);
 int sceFsCreatePfsSaveDataImage(CreateOpt *opt, const char *path, int x,
                                  uint64_t size, uint8_t *key);
+int sceFsCreatePprPfsSaveDataImage(CreateOpt *opt, const char *path, int x,
+                                    uint64_t size, uint8_t *key);
 int sceFsInitMountSaveDataOpt(MountOpt *opt);
 int sceFsMountSaveData(MountOpt *opt, const char *path,
                         const char *mount, uint8_t *key);
@@ -48,11 +49,6 @@ int sceFsInitUmountSaveDataOpt(UmountOpt *opt);
 int sceFsUmountSaveData(UmountOpt *opt, const char *mount,
                           int handle, int ignore);
 int sceFsUfsAllocateSaveData(int fd, uint64_t size, uint64_t flags, int ext);
-
-// PS5 PprCreate — resolved via dlsym (not in SDK stubs)
-typedef int (*PprCreateFn)(CreateOpt *opt, const char *path, int x,
-                            uint64_t size, uint8_t *key);
-static PprCreateFn g_pprCreate = NULL;
 
 // User service
 int sceUserServiceInitialize(void *);
@@ -726,13 +722,7 @@ static void cmd_create(int c, const char *uid_hex, const char *title_id,
         ret = sceFsCreatePfsSaveDataImage(&copt, tmp, 0, img_size, ckey);
     } else {
         copt.flags[1] = 0x02;
-        if (!g_pprCreate) {
-            unlink(tmp);
-            if (bin_path[0]) unlink(bin_path);
-            sendf(c, "ERR PprCreate not available\n");
-            return;
-        }
-        ret = g_pprCreate(&copt, tmp, 0, img_size, ckey);
+        ret = sceFsCreatePprPfsSaveDataImage(&copt, tmp, 0, img_size, ckey);
     }
     if (ret < 0) {
         unlink(tmp);
@@ -792,14 +782,20 @@ static void cmd_create(int c, const char *uid_hex, const char *title_id,
 int main() {
     printf("[mounter] starting\n");
 
-    sceUserServiceInitialize(NULL);
+    // Privilege escalation
+    pid_t me = getpid();
+    kernel_set_ucred_authid(me, 0x4800000000000010);
 
-    // Resolve PprCreate for PS5 save creation (not in SDK stubs)
-    void *vsh = dlopen("libSceFsInternalForVsh.sprx", RTLD_LAZY);
-    if (vsh) {
-        g_pprCreate = (PprCreateFn)dlsym(vsh, "sceFsCreatePprPfsSaveDataImage");
-        printf("[mounter] PprCreate: %s\n", g_pprCreate ? "available" : "not found");
-    }
+    uint8_t caps[16];
+    memset(caps, 0xFF, sizeof(caps));
+    kernel_set_ucred_caps(me, caps);
+
+    // Escape sandbox
+    intptr_t rvnode = kernel_get_root_vnode();
+    kernel_set_proc_rootdir(me, rvnode);
+    kernel_set_proc_jaildir(me, 0);
+
+    sceUserServiceInitialize(NULL);
 
     // Notification
     uint32_t fw = kernel_get_fw_version();
