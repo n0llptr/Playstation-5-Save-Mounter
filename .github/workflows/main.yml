@@ -16,7 +16,42 @@ permissions:
   contents: write
 
 jobs:
+  build_payload:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install toolchain dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang lld bsdextrautils
+
+    - name: Checkout PS5 payload SDK
+      uses: actions/checkout@v4
+      with:
+        repository: ps5-payload-dev/sdk
+        ref: 9e4b1ad7642ecf6e6a9bca7025b574034ee63ca7
+        submodules: recursive
+        path: ps5-payload-sdk
+
+    - name: Build and install SDK
+      run: |
+        export PS5_PAYLOAD_SDK="$GITHUB_WORKSPACE/ps5-sdk"
+        make -C ps5-payload-sdk DESTDIR="$PS5_PAYLOAD_SDK" clean install
+        echo "PS5_PAYLOAD_SDK=$PS5_PAYLOAD_SDK" >> "$GITHUB_ENV"
+
+    - name: Build mounter payload
+      run: make -C mounter_payload
+
+    - name: Upload payload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mounter-elf
+        path: mounter_payload/mounter.elf
+
   build_and_release:
+    needs: build_payload
     runs-on: 'windows-latest'
 
     steps:
@@ -26,17 +61,24 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    
+
+    - name: Download mounter payload
+      uses: actions/download-artifact@v4
+      with:
+        name: mounter-elf
+        path: ./payload
+
     - name: Publish
       shell: pwsh
       run: |
         dotnet publish PS4Saves.csproj --configuration Release --output ./publish/win-x64
+        Copy-Item ./payload/mounter.elf ./publish/win-x64/
         cd ./publish/win-x64
         Compress-Archive -Path ./* -DestinationPath save-mounter.zip
 
     - name: Attest
       uses: actions/attest-build-provenance@v1
-      with: 
+      with:
         subject-path: ./publish/win-x64/save-mounter.zip
 
     - name: Upload artifacts
