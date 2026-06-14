@@ -67,6 +67,7 @@ namespace PS4Saves
             gameImageBox = new System.Windows.Forms.PictureBox();
             sizeToolTip = new System.Windows.Forms.ToolTip(components);
             statusLabel = new System.Windows.Forms.Label();
+            debuggerVersionLabel = new System.Windows.Forms.Label();
             connectionGroupBox.SuspendLayout();
             createGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)sizeTrackBar).BeginInit();
@@ -500,12 +501,23 @@ namespace PS4Saves
             statusLabel.TabIndex = 13;
             statusLabel.Text = "Status:";
             // 
+            // debuggerVersionLabel
+            // 
+            debuggerVersionLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            debuggerVersionLabel.AutoSize = true;
+            debuggerVersionLabel.ForeColor = System.Drawing.SystemColors.GrayText;
+            debuggerVersionLabel.Location = new System.Drawing.Point(750, 489);
+            debuggerVersionLabel.Name = "debuggerVersionLabel";
+            debuggerVersionLabel.Size = new System.Drawing.Size(0, 15);
+            debuggerVersionLabel.TabIndex = 14;
+            // 
             // Main
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.SystemColors.Control;
             ClientSize = new System.Drawing.Size(934, 511);
+            Controls.Add(debuggerVersionLabel);
             Controls.Add(statusLabel);
             Controls.Add(infoGroupBox);
             Controls.Add(mountGroupBox);
@@ -514,7 +526,7 @@ namespace PS4Saves
             Margin = new System.Windows.Forms.Padding(4);
             MinimumSize = new System.Drawing.Size(950, 550);
             Name = "Main";
-            Text = "Playstation 5 Save Mounter 1.4.7 [ps5debug]";
+            Text = "Playstation 5 Save Mounter 1.5.0 [ps5debug-NG]";
             Closing += Main_Closing;
             connectionGroupBox.ResumeLayout(false);
             connectionGroupBox.PerformLayout();
@@ -568,5 +580,6 @@ namespace PS4Saves
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox sizeSnapCheckbox;
         private System.Windows.Forms.PictureBox gameImageBox;
+        private System.Windows.Forms.Label debuggerVersionLabel;
     }
 }

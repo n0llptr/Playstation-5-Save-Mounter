@@ -1,19 +1,18 @@
-# Playstation 5 Save Mounter 1.4.7
+# Playstation 5 Save Mounter 1.5.0
 This version is using patching so save data can be mounted without launching the game.
 It solves the issue of failing to mount specific game saves, as they were already mounted on game boot.
 Read the original readme below.
 
 Supports PS5 FWs:
-- 3.20, 4.03, 5.02, 5.10, 5.50, 6.02, 7.00, 7.01, 7.20, 7.40, 7.60
-	- If you have another FW version which is the same major version, it'll try to use the available offsets. This might now work, there's also a warning in the program.
-	- The following firmware versions are recognized but currently require a ps5debug port before they are fully supported: 8.20, 8.20.02, 9.40, 9.60, 10.01.
+- 3.20 up to and including 12.70.
+	- Some FW versions are missing like early ones (e.g. 3.21, 4.02). It'll try to use the available offsets if missing. This might now work, there's also a warning in the program.
 - Currently can only mounts PS4 game saves, no PS5 game support at the moment.
 
-Use [ps5debug](https://github.com/GoldHEN/ps5debug) at least version v1.0b5 for 3.xx-7.xx
+Use [ps5debug-NG](https://github.com/OpenSourcereR-dev/ps5debug-NG) v1.2.7+  
 Use this elf loader: https://github.com/ps5-payload-dev/elfldr
 
 ## Instructions (mouting existing saves)
-1) Load ps5debug.
+1) Load ps5debug-NG.
 2) Load FTP.
 3) Open the tool.
 4) Enter the IP address of your PS5 and click 'Connect'.
