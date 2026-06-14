@@ -9,31 +9,7 @@
         <UseWindowsForms>true</UseWindowsForms>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
-    <!--<ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>-->
-    <!--<ItemGroup>
-    <Compile Include="Main.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Main.Designer.cs">
-      <DependentUpon>Main.cs</DependentUpon>
-    </Compile>
-    <Compile Include="libdebug\Process.cs" />
-    <Compile Include="libdebug\PS4DBG.Console.cs" />
-    <Compile Include="libdebug\PS4DBG.cs" />
-    <Compile Include="libdebug\PS4DBG.Debug.cs" />
-    <Compile Include="libdebug\PS4DBG.Kernel.cs" />
-    <Compile Include="libdebug\PS4DBG.Proc.cs" />
-    <Compile Include="libdebug\Registers.cs" />
-    <Compile Include="offsets.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="structs.cs" />
-  </ItemGroup>-->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.6" />
+    </ItemGroup>
 </Project>

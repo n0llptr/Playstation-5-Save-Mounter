@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace PS4Saves
+﻿namespace PS4Saves
 {
     partial class Main
     {
@@ -41,8 +39,6 @@ namespace PS4Saves
             searchButton = new System.Windows.Forms.Button();
             mountButton = new System.Windows.Forms.Button();
             unmountButton = new System.Windows.Forms.Button();
-            patchButton = new System.Windows.Forms.Button();
-            unpatchButton = new System.Windows.Forms.Button();
             connectionGroupBox = new System.Windows.Forms.GroupBox();
             label2 = new System.Windows.Forms.Label();
             ipLabel = new System.Windows.Forms.Label();
@@ -67,7 +63,6 @@ namespace PS4Saves
             gameImageBox = new System.Windows.Forms.PictureBox();
             sizeToolTip = new System.Windows.Forms.ToolTip(components);
             statusLabel = new System.Windows.Forms.Label();
-            debuggerVersionLabel = new System.Windows.Forms.Label();
             connectionGroupBox.SuspendLayout();
             createGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)sizeTrackBar).BeginInit();
@@ -98,7 +93,7 @@ namespace PS4Saves
             // gamesButton
             // 
             gamesButton.Enabled = false;
-            gamesButton.Location = new System.Drawing.Point(8, 144);
+            gamesButton.Location = new System.Drawing.Point(8, 112);
             gamesButton.Margin = new System.Windows.Forms.Padding(4);
             gamesButton.Name = "gamesButton";
             gamesButton.Size = new System.Drawing.Size(211, 24);
@@ -110,7 +105,7 @@ namespace PS4Saves
             // setupButton
             // 
             setupButton.Enabled = false;
-            setupButton.Location = new System.Drawing.Point(8, 112);
+            setupButton.Location = new System.Drawing.Point(8, 80);
             setupButton.Margin = new System.Windows.Forms.Padding(4);
             setupButton.Name = "setupButton";
             setupButton.Size = new System.Drawing.Size(211, 24);
@@ -124,7 +119,7 @@ namespace PS4Saves
             gamesComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             gamesComboBox.Enabled = false;
             gamesComboBox.FormattingEnabled = true;
-            gamesComboBox.Location = new System.Drawing.Point(224, 144);
+            gamesComboBox.Location = new System.Drawing.Point(224, 112);
             gamesComboBox.Margin = new System.Windows.Forms.Padding(4);
             gamesComboBox.Name = "gamesComboBox";
             gamesComboBox.Size = new System.Drawing.Size(210, 23);
@@ -136,7 +131,7 @@ namespace PS4Saves
             userComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             userComboBox.Enabled = false;
             userComboBox.FormattingEnabled = true;
-            userComboBox.Location = new System.Drawing.Point(224, 112);
+            userComboBox.Location = new System.Drawing.Point(224, 80);
             userComboBox.Margin = new System.Windows.Forms.Padding(4);
             userComboBox.Name = "userComboBox";
             userComboBox.Size = new System.Drawing.Size(210, 23);
@@ -194,47 +189,21 @@ namespace PS4Saves
             unmountButton.UseVisualStyleBackColor = true;
             unmountButton.Click += unmountButton_Click;
             // 
-            // patchButton
-            // 
-            patchButton.Enabled = false;
-            patchButton.Location = new System.Drawing.Point(8, 80);
-            patchButton.Margin = new System.Windows.Forms.Padding(4);
-            patchButton.Name = "patchButton";
-            patchButton.Size = new System.Drawing.Size(211, 24);
-            patchButton.TabIndex = 14;
-            patchButton.Text = "Patch";
-            patchButton.UseVisualStyleBackColor = true;
-            patchButton.Click += patchButton_Click;
-            // 
-            // unpatchButton
-            // 
-            unpatchButton.Enabled = false;
-            unpatchButton.Location = new System.Drawing.Point(224, 80);
-            unpatchButton.Margin = new System.Windows.Forms.Padding(4);
-            unpatchButton.Name = "unpatchButton";
-            unpatchButton.Size = new System.Drawing.Size(211, 24);
-            unpatchButton.TabIndex = 15;
-            unpatchButton.Text = "Unpatch";
-            unpatchButton.UseVisualStyleBackColor = true;
-            unpatchButton.Click += unpatchButton_Click;
-            // 
             // connectionGroupBox
             // 
-            connectionGroupBox.Controls.Add(patchButton);
-            connectionGroupBox.Controls.Add(unpatchButton);
             connectionGroupBox.Controls.Add(label2);
             connectionGroupBox.Controls.Add(ipLabel);
             connectionGroupBox.Controls.Add(ipTextBox);
             connectionGroupBox.Controls.Add(connectButton);
-            connectionGroupBox.Controls.Add(gamesButton);
             connectionGroupBox.Controls.Add(setupButton);
             connectionGroupBox.Controls.Add(userComboBox);
+            connectionGroupBox.Controls.Add(gamesButton);
             connectionGroupBox.Controls.Add(gamesComboBox);
             connectionGroupBox.Location = new System.Drawing.Point(8, 13);
             connectionGroupBox.Margin = new System.Windows.Forms.Padding(4);
             connectionGroupBox.Name = "connectionGroupBox";
             connectionGroupBox.Padding = new System.Windows.Forms.Padding(4);
-            connectionGroupBox.Size = new System.Drawing.Size(442, 178);
+            connectionGroupBox.Size = new System.Drawing.Size(442, 146);
             connectionGroupBox.TabIndex = 10;
             connectionGroupBox.TabStop = false;
             connectionGroupBox.Text = "Connection";
@@ -267,7 +236,7 @@ namespace PS4Saves
             createGroupBox.Controls.Add(nameLabel);
             createGroupBox.Controls.Add(nameTextBox);
             createGroupBox.Controls.Add(createButton);
-            createGroupBox.Location = new System.Drawing.Point(9, 329);
+            createGroupBox.Location = new System.Drawing.Point(9, 297);
             createGroupBox.Margin = new System.Windows.Forms.Padding(4);
             createGroupBox.Name = "createGroupBox";
             createGroupBox.Padding = new System.Windows.Forms.Padding(4);
@@ -350,7 +319,7 @@ namespace PS4Saves
             mountGroupBox.Controls.Add(dirsComboBox);
             mountGroupBox.Controls.Add(mountButton);
             mountGroupBox.Controls.Add(unmountButton);
-            mountGroupBox.Location = new System.Drawing.Point(8, 199);
+            mountGroupBox.Location = new System.Drawing.Point(8, 167);
             mountGroupBox.Margin = new System.Windows.Forms.Padding(4);
             mountGroupBox.Name = "mountGroupBox";
             mountGroupBox.Padding = new System.Windows.Forms.Padding(4);
@@ -387,7 +356,7 @@ namespace PS4Saves
             infoGroupBox.Margin = new System.Windows.Forms.Padding(4);
             infoGroupBox.Name = "infoGroupBox";
             infoGroupBox.Padding = new System.Windows.Forms.Padding(4);
-            infoGroupBox.Size = new System.Drawing.Size(462, 489);
+            infoGroupBox.Size = new System.Drawing.Size(462, 481);
             infoGroupBox.TabIndex = 12;
             infoGroupBox.TabStop = false;
             infoGroupBox.Text = "Save Info";
@@ -479,13 +448,12 @@ namespace PS4Saves
             // 
             // gameImageBox
             // 
-            gameImageBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             gameImageBox.BackColor = System.Drawing.SystemColors.Control;
             gameImageBox.Location = new System.Drawing.Point(144, 283);
             gameImageBox.MaximumSize = new System.Drawing.Size(512, 512);
             gameImageBox.MinimumSize = new System.Drawing.Size(175, 175);
             gameImageBox.Name = "gameImageBox";
-            gameImageBox.Size = new System.Drawing.Size(175, 183);
+            gameImageBox.Size = new System.Drawing.Size(175, 175);
             gameImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             gameImageBox.TabIndex = 8;
             gameImageBox.TabStop = false;
@@ -494,39 +462,28 @@ namespace PS4Saves
             // 
             statusLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             statusLabel.AutoSize = true;
-            statusLabel.Location = new System.Drawing.Point(9, 489);
+            statusLabel.Location = new System.Drawing.Point(9, 457);
             statusLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             statusLabel.Name = "statusLabel";
             statusLabel.Size = new System.Drawing.Size(42, 15);
             statusLabel.TabIndex = 13;
             statusLabel.Text = "Status:";
             // 
-            // debuggerVersionLabel
-            // 
-            debuggerVersionLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            debuggerVersionLabel.AutoSize = true;
-            debuggerVersionLabel.ForeColor = System.Drawing.SystemColors.GrayText;
-            debuggerVersionLabel.Location = new System.Drawing.Point(750, 489);
-            debuggerVersionLabel.Name = "debuggerVersionLabel";
-            debuggerVersionLabel.Size = new System.Drawing.Size(0, 15);
-            debuggerVersionLabel.TabIndex = 14;
-            // 
             // Main
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.SystemColors.Control;
-            ClientSize = new System.Drawing.Size(934, 511);
-            Controls.Add(debuggerVersionLabel);
+            ClientSize = new System.Drawing.Size(934, 481);
             Controls.Add(statusLabel);
             Controls.Add(infoGroupBox);
             Controls.Add(mountGroupBox);
             Controls.Add(createGroupBox);
             Controls.Add(connectionGroupBox);
             Margin = new System.Windows.Forms.Padding(4);
-            MinimumSize = new System.Drawing.Size(950, 550);
+            MinimumSize = new System.Drawing.Size(950, 520);
             Name = "Main";
-            Text = "Playstation 5 Save Mounter 1.5.0 [ps5debug-NG]";
+            Text = "Playstation 5 Save Mounter 2.0.0";
             Closing += Main_Closing;
             connectionGroupBox.ResumeLayout(false);
             connectionGroupBox.PerformLayout();
@@ -554,8 +511,6 @@ namespace PS4Saves
         private System.Windows.Forms.Button searchButton;
         private System.Windows.Forms.Button mountButton;
         private System.Windows.Forms.Button unmountButton;
-        private System.Windows.Forms.Button patchButton;
-        private System.Windows.Forms.Button unpatchButton;
         private System.Windows.Forms.GroupBox connectionGroupBox;
         private System.Windows.Forms.Label ipLabel;
         private System.Windows.Forms.GroupBox createGroupBox;
@@ -580,6 +535,5 @@ namespace PS4Saves
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox sizeSnapCheckbox;
         private System.Windows.Forms.PictureBox gameImageBox;
-        private System.Windows.Forms.Label debuggerVersionLabel;
     }
 }
