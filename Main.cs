@@ -269,6 +269,15 @@ namespace PS4Saves
                     case 1020:
                     case 1040:
                     case 1060:
+                    case 1100:
+                    case 1120:
+                    case 1140:
+                    case 1200:
+                    case 1202:
+                    case 1220:
+                    case 1240:
+                    case 1260:
+                    case 1270:
                         matchExactFWVersion(version);
                         break;
                     case 550:
