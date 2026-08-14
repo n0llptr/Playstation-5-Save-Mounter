@@ -17,33 +17,59 @@ permissions:
 
 jobs:
   build_and_release:
-    runs-on: 'windows-latest'
+    runs-on: 'ubuntu-latest'
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install toolchain dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang lld bsdextrautils
+
+    - name: Checkout PS5 payload SDK
+      uses: actions/checkout@v4
+      with:
+        repository: ps5-payload-dev/sdk
+        ref: 8ae0a9babfffe3994948c55fb2d0d9b1a75038df
+        submodules: recursive
+        path: ps5-payload-sdk
+
+    - name: Build and install SDK
+      run: |
+        export PS5_PAYLOAD_SDK="$GITHUB_WORKSPACE/ps5-sdk"
+        make -C ps5-payload-sdk DESTDIR="$PS5_PAYLOAD_SDK" clean install
+        echo "PS5_PAYLOAD_SDK=$PS5_PAYLOAD_SDK" >> "$GITHUB_ENV"
+
+    - name: Build mounter payload
+      run: make -C mounter_payload
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    
+
     - name: Publish
-      shell: pwsh
       run: |
-        dotnet publish PS4Saves.csproj --configuration Release --output ./publish/win-x64
+        dotnet publish PS4Saves.csproj --configuration Release \
+          -r win-x64 --self-contained false \
+          -p:EnableWindowsTargeting=true --output ./publish/win-x64
+        cp mounter_payload/mounter.elf ./publish/win-x64/
         cd ./publish/win-x64
-        Compress-Archive -Path ./* -DestinationPath save-mounter.zip
+        zip -r save-mounter.zip ./*
 
     - name: Attest
       uses: actions/attest-build-provenance@v1
-      with: 
+      with:
         subject-path: ./publish/win-x64/save-mounter.zip
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: save-mounter.zip
-        path: ./publish/win-x64/save-mounter.zip
+        name: save-mounter
+        path: |
+          ./publish/win-x64/*
+          !./publish/win-x64/save-mounter.zip
 
     - name: Create or Update GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
