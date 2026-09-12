@@ -31,7 +31,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: ps5-payload-dev/sdk
-        ref: 8ae0a9babfffe3994948c55fb2d0d9b1a75038df
+        ref: 4eb701204fc3f8d31e84cf8ca272974e2be9c867
         submodules: recursive
         path: ps5-payload-sdk
 
