@@ -483,7 +483,7 @@
             Margin = new System.Windows.Forms.Padding(4);
             MinimumSize = new System.Drawing.Size(950, 520);
             Name = "Main";
-            Text = "Playstation 5 Save Mounter 2.0.0";
+            Text = "Playstation 5 Save Mounter 2.0.1";
             Closing += Main_Closing;
             connectionGroupBox.ResumeLayout(false);
             connectionGroupBox.PerformLayout();
