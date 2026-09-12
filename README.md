@@ -1,6 +1,6 @@
-# Playstation 5 Save Mounter 2.0.0
+# Playstation 5 Save Mounter 2.0.1
 Supports all jailbreakable PS5 FWs.  
-Mounts PS4 game saves as well PS5 game saves.
+Mounts PS1, PS2, PSP, PS4 and PS5 game saves.
 
 Use this elf loader: https://github.com/ps5-payload-dev/elfldr
 
