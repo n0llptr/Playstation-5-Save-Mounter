@@ -194,13 +194,38 @@ static void cmd_get_users(int c) {
 }
 
 static void scan_save_dir(const char *path, char titles[][16], int *cnt) {
+    static const char *prefixes[] = {
+        "CUSA", // PS4
+        "PPSA", // PS5
+
+        // PS1/PS2
+        "SLUS", "SLPS", "SLPM", "SLKA", "SLES", "SLAJ",
+        "SCUS", "SCPS", "SCPM", "SCKA", "SCES", "SCED",
+        "SLED", "SCAJ", "PAPX", "PBPX", "PCPX",
+
+        // PSP
+        "ULUS", "ULUX", "ULES", "ULET", "ULJM", "ULJS",
+        "UCES", "UCUS", "UCAS", "UCKS", "UCED"
+    };
+    const size_t num_prefixes = sizeof(prefixes) / sizeof(prefixes[0]);
+
     DIR *d = opendir(path);
     if (!d) return;
+
     struct dirent *ent;
     while ((ent = readdir(d)) != NULL && *cnt < 512) {
         if (ent->d_name[0] == '.') continue;
-        if (strncmp(ent->d_name, "CUSA", 4) == 0 ||
-            strncmp(ent->d_name, "PPSA", 4) == 0) {
+
+        int matched = 0;
+        for (size_t i = 0; i < num_prefixes; i++) {
+            size_t len = strlen(prefixes[i]);
+            if (strncmp(ent->d_name, prefixes[i], len) == 0) {
+                matched = 1;
+                break;
+            }
+        }
+
+        if (matched) {
             strncpy(titles[*cnt], ent->d_name, 15);
             titles[*cnt][15] = 0;
             (*cnt)++;
